@@ -1,121 +1,83 @@
 package edu.ntudp.olkhovyk;
 
-import java.util.Random;
+import edu.ntudp.olkhovyk.controller.UniversityCreator;
+import edu.ntudp.olkhovyk.model.Department;
+import edu.ntudp.olkhovyk.model.Faculty;
+import edu.ntudp.olkhovyk.model.Group;
+import edu.ntudp.olkhovyk.model.University;
+import edu.ntudp.olkhovyk.model.base.Human;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class App {
     private static final Scanner input = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        System.out.print("Set size X: ");
-        var x = getIntFromScanner(1, 20);
-        System.out.print("Set size Y: ");
-        var y = getIntFromScanner(1, 20);
-        System.out.println("Create matrix automatically(0) or manually(1)?");
-        var createType = getIntFromScanner(0, 1);
-        var matrix = CreateMatrix(x, y, createType);
-        PrintMatrix(matrix);
-        System.out.println("Min matrix value: " + GetMatrixMin(matrix));
-        System.out.println("Max matrix value: " + GetMatrixMax(matrix));
-        System.out.println("Average matrix value: " + GetMatrixAvg(matrix));
+    public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        var university = UniversityCreator.createTypicalUniversity();
+        printUniversity(university);
     }
 
-    private static int[][] CreateMatrix(int x, int y, int createMethod) {
-        int[][] matrix = new int[x][y];
-        if (createMethod == 0) {
-            AutomaticallyFillMatrix(matrix);
-        } else if (createMethod == 1) {
-            ManuallyFillMatrix(matrix);
-        }
-        return matrix;
-    }
+    private static void printUniversity(University university) {
 
-    private static void AutomaticallyFillMatrix(int[][] matrix) {
-        Random random = new Random();
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                matrix[i][j] = random.nextInt(50);
-            }
-        }
-    }
-
-    private static void ManuallyFillMatrix(int[][] matrix) {
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                System.out.print("Enter matrix[" + (i + 1) + "][" + (j + 1) + "]: ");
-                matrix[i][j] = getIntFromScanner();
-            }
-        }
-    }
-
-    private static int GetMatrixMin(int[][] matrix) {
-        var min = matrix[0][0];
-        for (int[] rows : matrix) {
-            for (int e : rows) {
-                if (e < min) {
-                    min = e;
-                }
-            }
-        }
-        return min;
-    }
-
-    private static int GetMatrixMax(int[][] matrix) {
-        var max = matrix[0][0];
-        for (int[] rows : matrix) {
-            for (int e : rows) {
-                if (e > max) {
-                    max = e;
-                }
-            }
-        }
-        return max;
-    }
-
-    private static double GetMatrixAvg(int[][] matrix) {
-        var sum = 0;
-        var count = 0;
-        for (int[] rows : matrix) {
-            for (int e : rows) {
-                sum += e;
-                count++;
-            }
-        }
-        return (double) sum / count;
-    }
-
-    private static void PrintMatrix(int[][] matrix) {
-        for (int[] rows : matrix) {
-            for (int e : rows) {
-                System.out.print(e);
-                System.out.print(" ");
-            }
+        System.out.println("University name: " + university.getName());
+        System.out.print("\tHead fullname: ");
+        printHuman(university.getHead());
+        System.out.println();
+        ArrayList<Faculty> faculties = university.getFaculties();
+        for (int i = 0; i < faculties.size(); i++) {
+            System.out.print("\t");
+            System.out.print((i + 1) + ". ");
+            printFaculty(faculties.get(i));
             System.out.println();
         }
     }
 
-    private static int getIntFromScanner() {
-        return getIntFromScanner(-1, -1);
+    private static void printFaculty(Faculty faculty) {
+        System.out.println("Faculty: " + faculty.getName());
+        System.out.print("\t\tHead fullname: ");
+        printHuman(faculty.getHead());
+        System.out.println();
+        ArrayList<Department> departments = faculty.getDepartments();
+        for (int i = 0; i < departments.size(); i++) {
+            System.out.print("\t\t");
+            System.out.print((i + 1) + ". ");
+            printDepartment(departments.get(i));
+            System.out.println();
+        }
     }
 
-    private static int getIntFromScanner(int lowerBound, int upperBound) {
-        var parsed = false;
-        var value = 0;
-
-        while (!parsed) {
-            try {
-                value = input.nextInt();
-
-                if ((lowerBound != -1 && value < lowerBound) || (upperBound != -1 && value > upperBound)) {
-                    throw new Exception();
-                }
-
-                parsed = true;
-            } catch (Exception e) {
-                System.out.println("Wrong number! Must be between " + lowerBound + " " + upperBound);
-            }
+    private static void printDepartment(Department dept) {
+        System.out.println("Department: " + dept.getName());
+        System.out.print("\t\t\tHead fullname: ");
+        printHuman(dept.getHead());
+        System.out.println();
+        ArrayList<Group> groups = dept.getGroups();
+        for (int i = 0; i < groups.size(); i++) {
+            System.out.print("\t\t\t");
+            System.out.print((i + 1) + ". ");
+            printGroup(groups.get(i));
+            System.out.println();
         }
+    }
 
-        return value;
+    private static void printGroup(Group group) {
+        System.out.println("Group: " + group.getName());
+        System.out.print("\t\t\t\tHead fullname: ");
+        printHuman(group.getHead());
+        System.out.println();
+        var students = group.getStudents();
+
+        for (int i = 0; i < students.size(); i++) {
+            System.out.print("\t\t\t\t");
+            System.out.print((i + 1) + ". ");
+            printHuman(students.get(i));
+            System.out.println();
+        }
+    }
+
+    private static void printHuman(Human human) {
+        System.out.print(human.getFullName());
     }
 }
